@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Think-Clear - Master Critical Thinking</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-brain"></i> Think-Clear
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="showScreen('home')" class="nav-link">Home</a></li>
+                    <li><a href="#" onclick="showScreen('lessons')" class="nav-link">Lessons</a></li>
+                    <li><a href="#" onclick="showScreen('exercises')" class="nav-link">Exercises</a></li>
+                    <li><a href="#" onclick="showScreen('profile')" class="nav-link">Profile</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="screen active">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Welcome to Think-Clear</h1>
+                    <p>Master the art of critical thinking and clear communication</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-content">
+                            <h3>Current Streak</h3>
+                            <p class="stat-value" id="streakValue">0 days</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Overall Score</h3>
+                            <p class="stat-value" id="scoreValue">0%</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <h3>Lessons Done</h3>
+                            <p class="stat-value" id="lessonsValue">0/4</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3>Exercises</h3>
+                            <p class="stat-value" id="exercisesValue">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="showScreen('lessons')">
+                        <i class="fas fa-book"></i> Start Learning
+                    </button>
+                    <button class="btn btn-secondary" onclick="showScreen('exercises')">
+                        <i class="fas fa-dumbbell"></i> Practice
+                    </button>
+                </div>
+
+                <div class="daily-tip">
+                    <h3>💡 Daily Tip</h3>
+                    <p id="dailyTip">Always question your assumptions and look for evidence.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lessons Screen -->
+        <div id="lessonsScreen" class="screen">
+            <div class="container">
+                <h2>Critical Thinking Lessons</h2>
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterLessons('all')">All</button>
+                    <button class="filter-btn" onclick="filterLessons('beginner')">Beginner</button>
+                    <button class="filter-btn" onclick="filterLessons('intermediate')">Intermediate</button>
+                    <button class="filter-btn" onclick="filterLessons('advanced')">Advanced</button>
+                </div>
+
+                <div class="lessons-grid" id="lessonsGrid">
+                    <!-- Lessons will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson Detail Screen -->
+        <div id="lessonDetailScreen" class="screen">
+            <div class="container">
+                <button class="btn-back" onclick="showScreen('lessons')">← Back</button>
+                <div id="lessonContent">
+                    <!-- Lesson content will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="screen">
+            <div class="container">
+                <div class="quiz-container">
+                    <div id="quizContent">
+                        <!-- Quiz content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises Screen -->
+        <div id="exercisesScreen" class="screen">
+            <div class="container">
+                <h2>Practice Exercises</h2>
+                <div class="exercises-grid" id="exercisesGrid">
+                    <!-- Exercises will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="screen">
+            <div class="container">
+                <div class="profile-header">
+                    <div class="profile-avatar">👤</div>
+                    <h2 id="userName">User</h2>
+                </div>
+
+                <div class="profile-stats">
+                    <h3>Your Statistics</h3>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span>Total Quizzes Completed</span>
+                            <span id="totalQuizzes">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Average Score</span>
+                            <span id="avgScore">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Lessons Completed</span>
+                            <span id="completedLessons">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Current Streak</span>
+                            <span id="currentStreak">0 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievements">
+                    <h3>Achievements</h3>
+                    <div class="achievement-grid" id="achievementGrid">
+                        <!-- Achievements will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn btn-warning" onclick="resetData()">Reset All Data</button>
+                    <button class="btn btn-secondary" onclick="exportData()">Export Progress</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
