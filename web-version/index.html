@@ -9,8 +9,39 @@
 </head>
 <body>
     <div id="app">
+        <!-- Auth Screen -->
+        <div id="authScreen" class="screen active">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h1>Think-Clear</h1>
+                    <p>Master the art of critical thinking</p>
+                </div>
+
+                <div id="authForm" class="auth-form">
+                    <h2>Welcome Back</h2>
+                    <input type="email" id="authEmail" placeholder="Enter your email" class="auth-input">
+                    <input type="password" id="authPassword" placeholder="Enter your password" class="auth-input">
+                    <button class="btn btn-auth" onclick="authenticate()">Sign In</button>
+                    <p class="auth-toggle">Don't have an account? <a href="#" onclick="toggleSignUp()">Sign Up</a></p>
+                </div>
+
+                <div id="signUpForm" class="auth-form" style="display:none;">
+                    <h2>Create Account</h2>
+                    <input type="text" id="signUpName" placeholder="Full Name" class="auth-input">
+                    <input type="email" id="signUpEmail" placeholder="Enter your email" class="auth-input">
+                    <input type="password" id="signUpPass" placeholder="Create password" class="auth-input">
+                    <input type="password" id="signUpConfirm" placeholder="Confirm password" class="auth-input">
+                    <button class="btn btn-auth" onclick="createAccount()">Sign Up</button>
+                    <p class="auth-toggle">Already have an account? <a href="#" onclick="toggleSignUp()">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+
         <!-- Navigation Bar -->
-        <nav class="navbar">
+        <nav class="navbar" id="navbar" style="display:none;">
             <div class="nav-container">
                 <div class="nav-logo">
                     <i class="fas fa-brain"></i> Think-Clear
@@ -19,17 +50,28 @@
                     <li><a href="#" onclick="showScreen('home')" class="nav-link">Home</a></li>
                     <li><a href="#" onclick="showScreen('lessons')" class="nav-link">Lessons</a></li>
                     <li><a href="#" onclick="showScreen('exercises')" class="nav-link">Exercises</a></li>
+                    <li><a href="#" onclick="showScreen('premium')" class="nav-link premium-link">
+                        <i class="fas fa-crown"></i> Premium
+                    </a></li>
                     <li><a href="#" onclick="showScreen('profile')" class="nav-link">Profile</a></li>
+                    <li><a href="#" onclick="logout()" class="nav-link logout">Logout</a></li>
                 </ul>
             </div>
         </nav>
 
         <!-- Home Screen -->
-        <div id="homeScreen" class="screen active">
+        <div id="homeScreen" class="screen" style="display:none;">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1>Success Usually Comes to Those Who Are Busy Looking for It</h1>
+                    <p>Be brave, be competitive and active in every situation. You will one day make it.</p>
+                    <button class="btn btn-cta" onclick="showScreen('lessons')">Start Learning</button>
+                </div>
+            </div>
+
             <div class="container">
                 <div class="dashboard-header">
-                    <h1>Welcome to Think-Clear</h1>
-                    <p>Master the art of critical thinking and clear communication</p>
+                    <h2>Your Progress Dashboard</h2>
                 </div>
 
                 <div class="stats-grid">
@@ -63,13 +105,12 @@
                     </div>
                 </div>
 
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="showScreen('lessons')">
-                        <i class="fas fa-book"></i> Start Learning
-                    </button>
-                    <button class="btn btn-secondary" onclick="showScreen('exercises')">
-                        <i class="fas fa-dumbbell"></i> Practice
-                    </button>
+                <div class="premium-banner">
+                    <div class="premium-content">
+                        <h3>✨ Unlock Premium Features</h3>
+                        <p>Get deeper insights, more exercises, and exclusive content</p>
+                        <button class="btn btn-premium" onclick="showScreen('premium')">Explore Premium</button>
+                    </div>
                 </div>
 
                 <div class="daily-tip">
@@ -77,10 +118,39 @@
                     <p id="dailyTip">Always question your assumptions and look for evidence.</p>
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#" onclick="showScreen('home')">Home</a></li>
+                            <li><a href="#" onclick="showScreen('lessons')">Lessons</a></li>
+                            <li><a href="#" onclick="showScreen('premium')">Premium</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Contact Us</h4>
+                        <p>Email: <a href="mailto:support@think-clear.com">support@think-clear.com</a></p>
+                        <p>Address: Learning Hub, Global</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Get in Touch</h4>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
+                </div>
+            </footer>
         </div>
 
         <!-- Lessons Screen -->
-        <div id="lessonsScreen" class="screen">
+        <div id="lessonsScreen" class="screen" style="display:none;">
             <div class="container">
                 <h2>Critical Thinking Lessons</h2>
                 
@@ -95,20 +165,47 @@
                     <!-- Lessons will be loaded here -->
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#" onclick="showScreen('home')">Home</a></li>
+                            <li><a href="#" onclick="showScreen('lessons')">Lessons</a></li>
+                            <li><a href="#" onclick="showScreen('premium')">Premium</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Contact Us</h4>
+                        <p>Email: <a href="mailto:support@think-clear.com">support@think-clear.com</a></p>
+                        <p>Address: Learning Hub, Global</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
 
         <!-- Lesson Detail Screen -->
-        <div id="lessonDetailScreen" class="screen">
+        <div id="lessonDetailScreen" class="screen" style="display:none;">
             <div class="container">
                 <button class="btn-back" onclick="showScreen('lessons')">← Back</button>
                 <div id="lessonContent">
                     <!-- Lesson content will be loaded here -->
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
 
         <!-- Quiz Screen -->
-        <div id="quizScreen" class="screen">
+        <div id="quizScreen" class="screen" style="display:none;">
             <div class="container">
                 <div class="quiz-container">
                     <div id="quizContent">
@@ -116,24 +213,147 @@
                     </div>
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
 
         <!-- Exercises Screen -->
-        <div id="exercisesScreen" class="screen">
+        <div id="exercisesScreen" class="screen" style="display:none;">
             <div class="container">
                 <h2>Practice Exercises</h2>
                 <div class="exercises-grid" id="exercisesGrid">
                     <!-- Exercises will be loaded here -->
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#" onclick="showScreen('home')">Home</a></li>
+                            <li><a href="#" onclick="showScreen('lessons')">Lessons</a></li>
+                            <li><a href="#" onclick="showScreen('premium')">Premium</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Premium Screen -->
+        <div id="premiumScreen" class="screen" style="display:none;">
+            <div class="container">
+                <div class="premium-header">
+                    <h1>✨ Premium Membership</h1>
+                    <p>Unlock deeper insights and exclusive content</p>
+                </div>
+
+                <div class="premium-features">
+                    <div class="features-list">
+                        <h3>What You Get with Premium:</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> <strong>Deep Thinking Analysis</strong> - In-depth explanations of complex concepts</li>
+                            <li><i class="fas fa-check"></i> <strong>Advanced Writing Techniques</strong> - Expert-level writing guidance</li>
+                            <li><i class="fas fa-check"></i> <strong>Extended Explanations</strong> - Comprehensive content for every lesson</li>
+                            <li><i class="fas fa-check"></i> <strong>More Exercises</strong> - 50+ additional practice exercises</li>
+                            <li><i class="fas fa-check"></i> <strong>Extra Q&A</strong> - Unlimited questions and detailed answers</li>
+                            <li><i class="fas fa-check"></i> <strong>Priority Support</strong> - Fast response to your questions</li>
+                            <li><i class="fas fa-check"></i> <strong>Exclusive Content</strong> - Premium-only lessons and materials</li>
+                            <li><i class="fas fa-check"></i> <strong>Ad-Free Experience</strong> - Uninterrupted learning</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pricing-plans">
+                    <h2>Choose Your Plan</h2>
+                    <div class="plans-grid">
+                        <div class="plan-card">
+                            <div class="plan-name">Monthly</div>
+                            <div class="plan-price">$<span>1</span>/month</div>
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> All Premium Features</li>
+                                <li><i class="fas fa-check"></i> Cancel Anytime</li>
+                                <li><i class="fas fa-times"></i> Best Value</li>
+                            </ul>
+                            <button class="btn btn-plan" onclick="purchasePlan('monthly')">Subscribe Now</button>
+                        </div>
+
+                        <div class="plan-card featured">
+                            <div class="plan-badge">Best Value</div>
+                            <div class="plan-name">6 Months</div>
+                            <div class="plan-price">$<span>5</span>/6 months</div>
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> All Premium Features</li>
+                                <li><i class="fas fa-check"></i> 20% Savings</li>
+                                <li><i class="fas fa-check"></i> 6-Month Access</li>
+                            </ul>
+                            <button class="btn btn-plan btn-primary" onclick="purchasePlan('6months')">Subscribe Now</button>
+                        </div>
+
+                        <div class="plan-card">
+                            <div class="plan-name">Yearly</div>
+                            <div class="plan-price">$<span>10</span>/year</div>
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> All Premium Features</li>
+                                <li><i class="fas fa-check"></i> 40% Savings</li>
+                                <li><i class="fas fa-check"></i> Full Year Access</li>
+                            </ul>
+                            <button class="btn btn-plan" onclick="purchasePlan('yearly')">Subscribe Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-section">
+                    <h3>Frequently Asked Questions</h3>
+                    <div class="faq-items">
+                        <div class="faq-item">
+                            <h4>Can I cancel anytime?</h4>
+                            <p>Yes, you can cancel your subscription anytime without any penalties.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>Do you offer refunds?</h4>
+                            <p>Yes, we offer a 7-day money-back guarantee on all subscriptions.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>Is my payment secure?</h4>
+                            <p>All payments are processed securely through Stripe with SSL encryption.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>Can I upgrade my plan?</h4>
+                            <p>Yes, you can upgrade or downgrade your plan at any time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <p>Email: <a href="mailto:premium@think-clear.com">premium@think-clear.com</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
 
         <!-- Profile Screen -->
-        <div id="profileScreen" class="screen">
+        <div id="profileScreen" class="screen" style="display:none;">
             <div class="container">
                 <div class="profile-header">
                     <div class="profile-avatar">👤</div>
                     <h2 id="userName">User</h2>
+                    <p id="userEmail" class="user-email">user@email.com</p>
+                    <div class="user-status" id="userStatus">Free Member</div>
                 </div>
 
                 <div class="profile-stats">
@@ -170,6 +390,18 @@
                     <button class="btn btn-secondary" onclick="exportData()">Export Progress</button>
                 </div>
             </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Account Support</h4>
+                        <p>Email: <a href="mailto:support@think-clear.com">support@think-clear.com</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Think-Clear. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
     </div>
 
