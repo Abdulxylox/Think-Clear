@@ -20,9 +20,9 @@ Common Types of Logical Fallacies:
 
 1. Ad Hominem - This fallacy attacks the person making the argument rather than the argument itself. For example: "You can't trust John's opinion on climate change because he's not a scientist."
 
-2. Straw Man Fallacy - This involves misrepresenting an opponent's argument to make it easier to refute. For example, if someone argues "We should have stricter regulations on pollution," a straw man response might be: "He wants to shut down all factories!"
+2. Straw Man Fallacy - This involves misrepresenting an opponent's argument to make it easier to refute. For example, if someone argues "We should have stricter regulations on pollution," a straw man might respond by attacking the idea of "no cars at all."
 
-3. Appeal to Authority - Using an authority figure's opinion as evidence, even when they may not be an expert in the field. For example: "This famous actor says this vitamin supplement works, so it must be true."
+3. Appeal to Authority - Using an authority figure's opinion as evidence, even when they may not be an expert in the field. For example: "This famous actor says this vitamin supplement works, so it must work."
 
 4. Circular Reasoning - Using the conclusion as evidence for itself. For example: "The Bible is true because it says so in the Bible."
 
@@ -32,7 +32,7 @@ Understanding these fallacies helps you evaluate arguments critically and constr
         examples: [
             {
                 title: 'Real-world Example: Ad Hominem',
-                description: 'During a political debate, instead of addressing a candidate\'s policy proposal, an opponent says "You\'re too inexperienced to understand economics." This attacks the person rather than evaluating the actual policy.'
+                description: 'During a political debate, instead of addressing a candidate\'s policy proposal, an opponent says "You\'re too inexperienced to understand economics." This attacks the person rather than their argument.'
             },
             {
                 title: 'Real-world Example: False Dilemma',
@@ -80,7 +80,7 @@ Principles of Clear Writing:
         examples: [
             {
                 title: 'Clarity Improvement Example',
-                description: 'Before: "It is important to note that the implementation of new software systems necessitates comprehensive training initiatives." After: "Users need training to use the new software."'
+                description: 'Before: "It is important to note that the implementation of new software systems necessitates comprehensive training initiatives." After: "Users need training to use new software." The second version is much clearer.'
             },
             {
                 title: 'Active vs Passive',
@@ -124,11 +124,11 @@ Key Criteria for Evaluating Evidence:
         examples: [
             {
                 title: 'Evaluating Health Claims',
-                description: 'A supplement company claims their product helps weight loss. The evidence: a study on their own website with 20 volunteers, no control group, and conflict of interest. Compare this with a peer-reviewed study of 500 people published in a medical journal.'
+                description: 'A supplement company claims their product helps weight loss. The evidence: a study on their own website with 20 volunteers, no control group, and clear conflicts of interest. This is weak evidence.'
             },
             {
                 title: 'Correlation vs Causation',
-                description: 'A study shows people who drink coffee live longer. This doesn\'t mean coffee causes longevity. More likely, people who can afford regular coffee also have better access to healthcare.'
+                description: 'A study shows people who drink coffee live longer. This doesn\'t mean coffee causes longevity. More likely, people who can afford regular coffee also have better access to healthcare and nutrition.'
             }
         ]
     },
@@ -177,11 +177,11 @@ Recognizing Biases in Yourself and Others:
         examples: [
             {
                 title: 'Confirmation Bias in Media',
-                description: 'Someone believes a certain politician is dishonest. They see news stories about the politician\'s scandals but ignore stories about achievements. They\'re selectively processing information to confirm their existing belief.'
+                description: 'Someone believes a certain politician is dishonest. They see news stories about the politician\'s scandals but ignore stories about achievements. They\'re selectively processing information.'
             },
             {
                 title: 'Attribution Bias',
-                description: 'A colleague arrives late and says "traffic was terrible." You think "they\'re always late." But when you\'re late, you say "traffic was terrible." This is attribution bias - different explanations for the same behavior.'
+                description: 'A colleague arrives late and says "traffic was terrible." You think "they\'re always late." But when you\'re late, you say "traffic was terrible." This is attribution bias.'
             }
         ]
     }
@@ -354,7 +354,7 @@ class UserManager {
             localStorage.setItem('users', JSON.stringify({}));
         }
         if (!localStorage.getItem('currentUser')) {
-            localStorage.setItem('currentUser', null);
+            localStorage.setItem('currentUser', '');
         }
     }
 
@@ -401,14 +401,14 @@ class UserManager {
 
     getCurrentUser() {
         const email = localStorage.getItem('currentUser');
-        if (!email) return null;
+        if (!email || email === 'null' || email === '') return null;
 
         const users = JSON.parse(localStorage.getItem('users') || '{}');
         return users[email] || null;
     }
 
     logout() {
-        localStorage.setItem('currentUser', null);
+        localStorage.setItem('currentUser', '');
     }
 
     updateUserData(email, updates) {
