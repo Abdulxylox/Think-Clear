@@ -337,76 +337,256 @@ const achievements = [
     { id: 'week_streak', name: 'Consistent Learner', icon: '⏰', condition: '7-day streak' }
 ];
 
-// Storage Management
-class StorageManager {
+const pricingPlans = {
+    monthly: { price: 1, duration: 'month' },
+    '6months': { price: 5, duration: '6 months' },
+    yearly: { price: 10, duration: 'year' }
+};
+
+// User Management
+class UserManager {
     constructor() {
-        this.initializeStorage();
+        this.initializeUsers();
     }
 
-    initializeStorage() {
-        if (!localStorage.getItem('userData')) {
-            const userData = {
-                userId: 'user_' + Date.now(),
-                createdAt: new Date().toISOString(),
-                lessonsCompleted: {},
-                exercisesCompleted: {},
-                quizScores: {},
-                currentStreak: 0,
-                overallScore: 0,
-                lastActivityDate: null,
-                userName: 'Learner'
-            };
-            localStorage.setItem('userData', JSON.stringify(userData));
+    initializeUsers() {
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('currentUser')) {
+            localStorage.setItem('currentUser', null);
         }
     }
 
-    getUserData() {
-        const data = localStorage.getItem('userData');
-        return data ? JSON.parse(data) : null;
-    }
+    createUser(name, email, password) {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        
+        if (users[email]) {
+            return { success: false, message: 'Email already registered' };
+        }
 
-    updateUserData(updates) {
-        const userData = this.getUserData();
-        const updated = { ...userData, ...updates };
-        localStorage.setItem('userData', JSON.stringify(updated));
-        updateDashboard();
-        return updated;
-    }
-
-    completeLesson(lessonId) {
-        const userData = this.getUserData();
-        userData.lessonsCompleted[lessonId] = true;
-        userData.lastActivityDate = new Date().toISOString();
-        this.updateUserData(userData);
-    }
-
-    recordQuizScore(quizId, score) {
-        const userData = this.getUserData();
-        userData.quizScores[quizId] = {
-            score: score,
-            timestamp: new Date().toISOString()
+        users[email] = {
+            name: name,
+            email: email,
+            password: password,
+            createdAt: new Date().toISOString(),
+            isPremium: false,
+            premiumExpiry: null,
+            lessonsCompleted: {},
+            exercisesCompleted: {},
+            quizScores: {},
+            currentStreak: 0,
+            overallScore: 0,
+            lastActivityDate: null
         };
-        
-        // Calculate overall score
-        const scores = Object.values(userData.quizScores).map(q => q.score);
-        userData.overallScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b) / scores.length) : 0;
-        userData.lastActivityDate = new Date().toISOString();
-        
-        this.updateUserData(userData);
+
+        localStorage.setItem('users', JSON.stringify(users));
+        return { success: true, message: 'Account created successfully' };
     }
 
-    resetData() {
+    authenticate(email, password) {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        
+        if (!users[email]) {
+            return { success: false, message: 'Email not found' };
+        }
+
+        if (users[email].password !== password) {
+            return { success: false, message: 'Incorrect password' };
+        }
+
+        localStorage.setItem('currentUser', email);
+        return { success: true, message: 'Logged in successfully', user: users[email] };
+    }
+
+    getCurrentUser() {
+        const email = localStorage.getItem('currentUser');
+        if (!email) return null;
+
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        return users[email] || null;
+    }
+
+    logout() {
+        localStorage.setItem('currentUser', null);
+    }
+
+    updateUserData(email, updates) {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        if (users[email]) {
+            users[email] = { ...users[email], ...updates };
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            if (email === localStorage.getItem('currentUser')) {
+                updateDashboard();
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    purchasePremium(email, plan) {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        if (!users[email]) return false;
+
+        const expiryDate = new Date();
+        if (plan === 'monthly') {
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+        } else if (plan === '6months') {
+            expiryDate.setMonth(expiryDate.getMonth() + 6);
+        } else if (plan === 'yearly') {
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        }
+
+        users[email].isPremium = true;
+        users[email].premiumExpiry = expiryDate.toISOString();
+        localStorage.setItem('users', JSON.stringify(users));
+
+        return true;
+    }
+}
+
+const userManager = new UserManager();
+
+// Storage Management
+class StorageManager {
+    constructor() {}
+
+    getUserData(email) {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        return users[email] || null;
+    }
+
+    completeLesson(email, lessonId) {
+        const userData = this.getUserData(email);
+        if (userData) {
+            userData.lessonsCompleted[lessonId] = true;
+            userData.lastActivityDate = new Date().toISOString();
+            userManager.updateUserData(email, userData);
+        }
+    }
+
+    recordQuizScore(email, quizId, score) {
+        const userData = this.getUserData(email);
+        if (userData) {
+            userData.quizScores[quizId] = {
+                score: score,
+                timestamp: new Date().toISOString()
+            };
+
+            const scores = Object.values(userData.quizScores).map(q => q.score);
+            userData.overallScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b) / scores.length) : 0;
+            userData.lastActivityDate = new Date().toISOString();
+
+            userManager.updateUserData(email, userData);
+        }
+    }
+
+    resetData(email) {
         if (confirm('Are you sure you want to reset all your data? This cannot be undone.')) {
-            localStorage.removeItem('userData');
-            this.initializeStorage();
-            showScreen('home');
-            alert('Your data has been reset.');
+            const userData = this.getUserData(email);
+            if (userData) {
+                userData.lessonsCompleted = {};
+                userData.exercisesCompleted = {};
+                userData.quizScores = {};
+                userData.currentStreak = 0;
+                userData.overallScore = 0;
+                userManager.updateUserData(email, userData);
+                alert('Your data has been reset.');
+                return true;
+            }
+        }
+        return false;
+    }
+
+    exportData(email) {
+        const userData = this.getUserData(email);
+        if (userData) {
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'think-clear-progress.json';
+            link.click();
+            alert('Your progress data has been downloaded!');
         }
     }
 }
 
-// Initialize Storage Manager
 const storage = new StorageManager();
+
+// Authentication Functions
+function toggleSignUp() {
+    const signInForm = document.getElementById('authForm');
+    const signUpForm = document.getElementById('signUpForm');
+    
+    if (signUpForm.style.display === 'none') {
+        signInForm.style.display = 'none';
+        signUpForm.style.display = 'block';
+    } else {
+        signInForm.style.display = 'block';
+        signUpForm.style.display = 'none';
+    }
+}
+
+function authenticate() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+
+    if (!email || !password) {
+        alert('Please enter email and password');
+        return;
+    }
+
+    const result = userManager.authenticate(email, password);
+    if (result.success) {
+        document.getElementById('authScreen').classList.remove('active');
+        document.getElementById('navbar').style.display = 'block';
+        document.getElementById('homeScreen').classList.add('active');
+        updateDashboard();
+    } else {
+        alert(result.message);
+    }
+}
+
+function createAccount() {
+    const name = document.getElementById('signUpName').value;
+    const email = document.getElementById('signUpEmail').value;
+    const password = document.getElementById('signUpPass').value;
+    const confirmPass = document.getElementById('signUpConfirm').value;
+
+    if (!name || !email || !password || !confirmPass) {
+        alert('Please fill all fields');
+        return;
+    }
+
+    if (password !== confirmPass) {
+        alert('Passwords do not match');
+        return;
+    }
+
+    const result = userManager.createUser(name, email, password);
+    if (result.success) {
+        alert(result.message);
+        toggleSignUp();
+        document.getElementById('authEmail').value = email;
+        document.getElementById('authPassword').value = password;
+    } else {
+        alert(result.message);
+    }
+}
+
+function logout() {
+    userManager.logout();
+    document.getElementById('authScreen').classList.add('active');
+    document.getElementById('navbar').style.display = 'none';
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('authEmail').value = '';
+    document.getElementById('authPassword').value = '';
+    alert('Logged out successfully');
+}
 
 // Screen Navigation
 function showScreen(screenName) {
@@ -417,13 +597,14 @@ function showScreen(screenName) {
     if (targetScreen) {
         targetScreen.classList.add('active');
         
-        // Load content for specific screens
         if (screenName === 'lessons') {
             loadLessons();
         } else if (screenName === 'exercises') {
             loadExercises();
         } else if (screenName === 'profile') {
             loadProfile();
+        } else if (screenName === 'premium') {
+            loadPremium();
         }
     }
     
@@ -432,12 +613,14 @@ function showScreen(screenName) {
 
 // Update Dashboard
 function updateDashboard() {
-    const userData = storage.getUserData();
-    const lessonsCompleted = Object.values(userData.lessonsCompleted).filter(v => v).length;
-    const quizzes = Object.values(userData.quizScores);
+    const currentUser = userManager.getCurrentUser();
+    if (!currentUser) return;
+
+    const lessonsCompleted = Object.values(currentUser.lessonsCompleted).filter(v => v).length;
+    const quizzes = Object.values(currentUser.quizScores);
     
-    document.getElementById('streakValue').textContent = userData.currentStreak + ' days';
-    document.getElementById('scoreValue').textContent = userData.overallScore + '%';
+    document.getElementById('streakValue').textContent = currentUser.currentStreak + ' days';
+    document.getElementById('scoreValue').textContent = currentUser.overallScore + '%';
     document.getElementById('lessonsValue').textContent = lessonsCompleted + '/4';
     document.getElementById('exercisesValue').textContent = quizzes.length;
     
@@ -448,7 +631,7 @@ function updateDashboard() {
 // Load Lessons
 function loadLessons(difficulty = 'all') {
     const grid = document.getElementById('lessonsGrid');
-    const userData = storage.getUserData();
+    const currentUser = userManager.getCurrentUser();
     
     let filteredLessons = lessonsData;
     if (difficulty !== 'all') {
@@ -456,7 +639,7 @@ function loadLessons(difficulty = 'all') {
     }
     
     grid.innerHTML = filteredLessons.map(lesson => {
-        const isCompleted = userData.lessonsCompleted[lesson.id];
+        const isCompleted = currentUser && currentUser.lessonsCompleted[lesson.id];
         return `
             <div class="lesson-card" onclick="showLessonDetail('${lesson.id}')">
                 <div class="lesson-header">
@@ -535,8 +718,11 @@ function showLessonDetail(lessonId) {
 
 // Complete Lesson
 function completeLesson(lessonId) {
-    storage.completeLesson(lessonId);
-    alert('Lesson completed! 🎉');
+    const currentUser = userManager.getCurrentUser();
+    if (currentUser) {
+        storage.completeLesson(currentUser.email, lessonId);
+        alert('Lesson completed! 🎉');
+    }
 }
 
 // Show Quiz
@@ -600,9 +786,8 @@ function selectAnswer(index) {
         options[question.correct].classList.add('correct');
     }
     
-    // Show explanation
     const explanationHTML = `
-        <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+        <div style="margin-top: 1.5rem; padding: 1rem; background-color: rgba(168, 85, 247, 0.1); border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.3);">
             <strong>Explanation:</strong> ${question.explanation}
         </div>
         <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;" onclick="nextQuizQuestion()">
@@ -612,7 +797,6 @@ function selectAnswer(index) {
     
     document.querySelector('.quiz-question').innerHTML += explanationHTML;
     
-    // Disable options
     options.forEach(opt => opt.style.pointerEvents = 'none');
 }
 
@@ -634,8 +818,10 @@ function showQuizResults() {
     const totalQuestions = quiz.questions.length;
     const percentage = Math.round((quiz.score / totalQuestions) * 100);
     
-    // Record score
-    storage.recordQuizScore('quiz_' + quiz.lessonId, percentage);
+    const currentUser = userManager.getCurrentUser();
+    if (currentUser) {
+        storage.recordQuizScore(currentUser.email, 'quiz_' + quiz.lessonId, percentage);
+    }
     
     const resultHTML = `
         <div class="quiz-result">
@@ -685,23 +871,58 @@ function startExercise(exerciseId) {
     alert(`🎯 Exercise: ${exercise.title}\n\n${exercise.description}\n\nClick OK to start practicing!`);
 }
 
+// Load Premium
+function loadPremium() {
+    const currentUser = userManager.getCurrentUser();
+    if (currentUser && currentUser.isPremium) {
+        const expiryDate = new Date(currentUser.premiumExpiry);
+        alert(`✨ You are a Premium Member!\nYour subscription expires on: ${expiryDate.toDateString()}`);
+    }
+}
+
+// Purchase Plan
+function purchasePlan(plan) {
+    const currentUser = userManager.getCurrentUser();
+    if (!currentUser) return;
+
+    const planInfo = pricingPlans[plan];
+    const confirmed = confirm(`Upgrade to Premium?\nPlan: ${plan}\nPrice: $${planInfo.price}/${planInfo.duration}\n\nClick OK to proceed to payment.`);
+    
+    if (confirmed) {
+        userManager.purchasePremium(currentUser.email, plan);
+        alert('✨ Welcome to Premium! 🎉\n\nYour subscription is now active. Enjoy unlimited access to all premium features!');
+        updateDashboard();
+    }
+}
+
 // Load Profile
 function loadProfile() {
-    const userData = storage.getUserData();
-    const quizzes = Object.values(userData.quizScores);
-    const lessonsCompleted = Object.values(userData.lessonsCompleted).filter(v => v).length;
+    const currentUser = userManager.getCurrentUser();
+    if (!currentUser) return;
+
+    const lessonsCompleted = Object.values(currentUser.lessonsCompleted).filter(v => v).length;
+    const quizzes = Object.values(currentUser.quizScores);
     
-    // Update stats
-    document.getElementById('userName').textContent = userData.userName;
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userEmail').textContent = currentUser.email;
+    
+    const statusEl = document.getElementById('userStatus');
+    if (currentUser.isPremium) {
+        statusEl.textContent = '✨ Premium Member';
+        statusEl.classList.add('premium');
+    } else {
+        statusEl.textContent = 'Free Member';
+        statusEl.classList.remove('premium');
+    }
+    
     document.getElementById('totalQuizzes').textContent = quizzes.length;
-    document.getElementById('avgScore').textContent = userData.overallScore + '%';
+    document.getElementById('avgScore').textContent = currentUser.overallScore + '%';
     document.getElementById('completedLessons').textContent = lessonsCompleted + '/4';
-    document.getElementById('currentStreak').textContent = userData.currentStreak + ' days';
+    document.getElementById('currentStreak').textContent = currentUser.currentStreak + ' days';
     
-    // Load achievements
     const achievementGrid = document.getElementById('achievementGrid');
     achievementGrid.innerHTML = achievements.map(ach => {
-        const isUnlocked = checkAchievementUnlocked(ach.id, userData);
+        const isUnlocked = checkAchievementUnlocked(ach.id, currentUser);
         return `
             <div class="achievement-badge ${isUnlocked ? 'unlocked' : ''}">
                 <div class="achievement-icon">${ach.icon}</div>
@@ -731,24 +952,33 @@ function checkAchievementUnlocked(achievementId, userData) {
 
 // Reset Data
 function resetData() {
-    storage.resetData();
+    const currentUser = userManager.getCurrentUser();
+    if (currentUser) {
+        storage.resetData(currentUser.email);
+        showScreen('home');
+    }
 }
 
 // Export Data
 function exportData() {
-    const userData = storage.getUserData();
-    const dataStr = JSON.stringify(userData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'think-clear-progress.json';
-    link.click();
-    alert('Your progress data has been downloaded!');
+    const currentUser = userManager.getCurrentUser();
+    if (currentUser) {
+        storage.exportData(currentUser.email);
+    }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    updateDashboard();
-    showScreen('home');
+    userManager.initializeUsers();
+    const currentUser = userManager.getCurrentUser();
+    
+    if (currentUser) {
+        document.getElementById('authScreen').classList.remove('active');
+        document.getElementById('navbar').style.display = 'block';
+        document.getElementById('homeScreen').classList.add('active');
+        updateDashboard();
+    } else {
+        document.getElementById('authScreen').classList.add('active');
+        document.getElementById('navbar').style.display = 'none';
+    }
 });
